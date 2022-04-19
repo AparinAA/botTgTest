@@ -178,7 +178,7 @@ dayHand.action(/day_[am].*/, function (ctx) { return __awaiter(void 0, void 0, v
         switch (_a.label) {
             case 0:
                 ctx.scene.session.lesson = ctx.match[0];
-                return [4 /*yield*/, ctx.editMessageText("\n    \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0439 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u0435\u043D\u044C", telegraf_1.Markup.inlineKeyboard([
+                return [4 /*yield*/, ctx.editMessageText("\n    \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438", telegraf_1.Markup.inlineKeyboard([
                         [telegraf_1.Markup.button.callback('Понедельник', 'time_m')],
                         [telegraf_1.Markup.button.callback('Вторник', 'time_tu')],
                         [telegraf_1.Markup.button.callback('Среда', 'time_w')],
@@ -203,7 +203,7 @@ urlHand.on('text', function (ctx) { return __awaiter(void 0, void 0, void 0, fun
                 if (ctx.scene.session.lesson === "day_trainexam") {
                     ctx.scene.session.url = ctx.message.text;
                 }
-                return [4 /*yield*/, ctx.reply("\n                \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u0435\u043D\u0438", telegraf_1.Markup.inlineKeyboard([
+                return [4 /*yield*/, ctx.reply("\n                \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438", telegraf_1.Markup.inlineKeyboard([
                         [telegraf_1.Markup.button.callback('Понедельник', 'time_m')],
                         [telegraf_1.Markup.button.callback('Вторник', 'time_tu')],
                         [telegraf_1.Markup.button.callback('Среда', 'time_w')],
@@ -311,7 +311,7 @@ var superWizard = new telegraf_1.Scenes.WizardScene('super-wizard', ageHand, gra
                     t7 = ctx.scene.session.time.indexOf('16') != -1 ? "✅" : "";
                     t8 = ctx.scene.session.time.indexOf('17') != -1 ? "✅" : "";
                     t9 = ctx.scene.session.time.indexOf('18') != -1 ? "✅" : "";
-                    return [2 /*return*/, ctx.editMessageText("\n                    \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438", {
+                    return [2 /*return*/, ctx.editMessageText("\n                    \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u043E\u0435 \u0432\u0440\u0435\u043C\u044F", {
                             reply_markup: {
                                 inline_keyboard: [
                                     [
