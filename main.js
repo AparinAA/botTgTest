@@ -221,7 +221,7 @@ urlHand.on('text', function (ctx) { return __awaiter(void 0, void 0, void 0, fun
 }); });
 var timeHand = new telegraf_1.Composer();
 timeHand.action(/time_.*/, function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
-    var ind, t1, t2, t3, t4, t5, t6, t7, keybord;
+    var ind, t1, t2, t3, t4, t5, t6, t7, t8, keybord;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -246,6 +246,7 @@ timeHand.action(/time_.*/, function (ctx) { return __awaiter(void 0, void 0, voi
                     t5 = ctx.scene.session.days.indexOf('time_f') != -1 ? "\u2705" : "";
                     t6 = ctx.scene.session.days.indexOf('time_sut') != -1 ? "\u2705" : "";
                     t7 = ctx.scene.session.days.indexOf('time_sun') != -1 ? "\u2705" : "";
+                    t8 = ctx.scene.session.days.indexOf('time_sun') != -1 ? "\u2705" : "";
                     keybord = [
                         [telegraf_1.Markup.button.callback(t1 + "\u041F\u043E\u043D\u0435\u0434\u0435\u043B\u044C\u043D\u0438\u043A", 'time_m')],
                         [telegraf_1.Markup.button.callback(t2 + "\u0412\u0442\u043E\u0440\u043D\u0438\u043A", 'time_tu')],
