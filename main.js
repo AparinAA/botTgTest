@@ -39,6 +39,7 @@ exports.__esModule = true;
 /* eslint-disable @typescript-eslint/no-floating-promises */
 require("dotenv/config");
 var telegraf_1 = require("telegraf");
+var sheet_1 = require("./sheet");
 var TOKEN_BOT = process.env.TOKEN_BOT;
 var ID_CHANNEL = process.env.ID_CHANNEL;
 if (TOKEN_BOT === undefined) {
@@ -144,15 +145,7 @@ dayHand.on('text', function (ctx) { return __awaiter(void 0, void 0, void 0, fun
             case 0:
                 if (!(ctx.scene.session.lesson === 'day_repeat')) return [3 /*break*/, 2];
                 ctx.scene.session.lastTopic = ctx.message.text;
-                return [4 /*yield*/, ctx.reply("\n        \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0439 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u0435\u043D\u044C", telegraf_1.Markup.inlineKeyboard([
-                        [telegraf_1.Markup.button.callback('Понедельник', 'time_m')],
-                        [telegraf_1.Markup.button.callback('Вторник', 'time_tu')],
-                        [telegraf_1.Markup.button.callback('Среда', 'time_w')],
-                        [telegraf_1.Markup.button.callback('Четверг', 'time_th')],
-                        [telegraf_1.Markup.button.callback('Пятница', 'time_f')],
-                        [telegraf_1.Markup.button.callback('Суббота', 'time_sut')],
-                        [telegraf_1.Markup.button.callback('Воскресенье', 'time_sun')],
-                    ]))];
+                return [4 /*yield*/, addKeyboardDay(ctx, true)];
             case 1:
                 _a.sent();
                 return [2 /*return*/, ctx.wizard.selectStep(ctx.wizard.cursor + 2)];
@@ -178,15 +171,7 @@ dayHand.action(/day_[am].*/, function (ctx) { return __awaiter(void 0, void 0, v
         switch (_a.label) {
             case 0:
                 ctx.scene.session.lesson = ctx.match[0];
-                return [4 /*yield*/, ctx.editMessageText("\n    \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438", telegraf_1.Markup.inlineKeyboard([
-                        [telegraf_1.Markup.button.callback('Понедельник', 'time_m')],
-                        [telegraf_1.Markup.button.callback('Вторник', 'time_tu')],
-                        [telegraf_1.Markup.button.callback('Среда', 'time_w')],
-                        [telegraf_1.Markup.button.callback('Четверг', 'time_th')],
-                        [telegraf_1.Markup.button.callback('Пятница', 'time_f')],
-                        [telegraf_1.Markup.button.callback('Суббота', 'time_sut')],
-                        [telegraf_1.Markup.button.callback('Воскресенье', 'time_sun')],
-                    ]))];
+                return [4 /*yield*/, addKeyboardDay(ctx, undefined)];
             case 1:
                 _a.sent();
                 return [2 /*return*/, ctx.wizard.selectStep(ctx.wizard.cursor + 3)];
@@ -203,15 +188,7 @@ urlHand.on('text', function (ctx) { return __awaiter(void 0, void 0, void 0, fun
                 if (ctx.scene.session.lesson === "day_trainexam") {
                     ctx.scene.session.url = ctx.message.text;
                 }
-                return [4 /*yield*/, ctx.reply("\n                \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438", telegraf_1.Markup.inlineKeyboard([
-                        [telegraf_1.Markup.button.callback('Понедельник', 'time_m')],
-                        [telegraf_1.Markup.button.callback('Вторник', 'time_tu')],
-                        [telegraf_1.Markup.button.callback('Среда', 'time_w')],
-                        [telegraf_1.Markup.button.callback('Четверг', 'time_th')],
-                        [telegraf_1.Markup.button.callback('Пятница', 'time_f')],
-                        [telegraf_1.Markup.button.callback('Суббота', 'time_sut')],
-                        [telegraf_1.Markup.button.callback('Воскресенье', 'time_sun')],
-                    ]))];
+                return [4 /*yield*/, addKeyboardDay(ctx, true)];
             case 1:
                 _a.sent();
                 _a.label = 2;
@@ -221,141 +198,96 @@ urlHand.on('text', function (ctx) { return __awaiter(void 0, void 0, void 0, fun
 }); });
 var timeHand = new telegraf_1.Composer();
 timeHand.action(/time_.*/, function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
-    var ind, t1, t2, t3, t4, t5, t6, t7, t8, keybord;
+    return __generator(this, function (_a) {
+        if (ctx.match[0] === "time_stop") {
+            if (ctx.scene.session.time != undefined) {
+                if (ctx.scene.session.time.length != 0) {
+                    ctx.scene.session[ctx.scene.session.currentDay] = ctx.scene.session.time;
+                }
+                else {
+                    ctx.scene.session[ctx.scene.session.currentDay] = undefined;
+                }
+            }
+            else {
+                ctx.scene.session[ctx.scene.session.currentDay] = undefined;
+            }
+            ctx.scene.session.time = [];
+            return [2 /*return*/, addKeyboardDay(ctx, undefined)];
+        }
+        ctx.scene.session.currentDay = ctx.match[0];
+        addKeyboardTime(ctx, ctx.match[0]);
+        return [2 /*return*/, ctx.wizard.next()];
+    });
+}); });
+timeHand.action(/1[0-8]/, function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                if (!(ctx.match[0] === 'time_stop')) {
-                    if (!ctx.scene.session.days) {
-                        ctx.scene.session.days = [];
-                        ctx.scene.session.daysName = [];
-                    }
-                    if (ctx.scene.session.days.indexOf(ctx.match[0]) != -1) {
-                        ind = ctx.scene.session.days.indexOf(ctx.match[0]);
-                        ctx.scene.session.days.splice(ind, 1);
-                        ctx.scene.session.daysName.splice(ind, 1);
-                    }
-                    else {
-                        ctx.scene.session.daysName.push(list_days[ctx.match[0]]);
-                        ctx.scene.session.days.push(ctx.match[0]);
-                    }
-                    t1 = ctx.scene.session.days.indexOf('time_m') != -1 ? "\u2705" : "";
-                    t2 = ctx.scene.session.days.indexOf('time_tu') != -1 ? "\u2705" : "";
-                    t3 = ctx.scene.session.days.indexOf('time_w') != -1 ? "\u2705" : "";
-                    t4 = ctx.scene.session.days.indexOf('time_th') != -1 ? "\u2705" : "";
-                    t5 = ctx.scene.session.days.indexOf('time_f') != -1 ? "\u2705" : "";
-                    t6 = ctx.scene.session.days.indexOf('time_sut') != -1 ? "\u2705" : "";
-                    t7 = ctx.scene.session.days.indexOf('time_sun') != -1 ? "\u2705" : "";
-                    t8 = ctx.scene.session.days.indexOf('time_sun') != -1 ? "\u2705" : "";
-                    keybord = [
-                        [telegraf_1.Markup.button.callback(t1 + "\u041F\u043E\u043D\u0435\u0434\u0435\u043B\u044C\u043D\u0438\u043A", 'time_m')],
-                        [telegraf_1.Markup.button.callback(t2 + "\u0412\u0442\u043E\u0440\u043D\u0438\u043A", 'time_tu')],
-                        [telegraf_1.Markup.button.callback(t3 + "\u0421\u0440\u0435\u0434\u0430", 'time_w')],
-                        [telegraf_1.Markup.button.callback(t4 + "\u0427\u0435\u0442\u0432\u0435\u0440\u0433", 'time_th')],
-                        [telegraf_1.Markup.button.callback(t5 + "\u041F\u044F\u0442\u043D\u0438\u0446\u0430", 'time_f')],
-                        [telegraf_1.Markup.button.callback(t6 + "\u0421\u0443\u0431\u0431\u043E\u0442\u0430", 'time_sut')],
-                        [telegraf_1.Markup.button.callback(t7 + "\u0412\u043E\u0441\u043A\u0440\u0435\u0441\u0435\u043D\u044C\u0435", 'time_sun')],
-                        [telegraf_1.Markup.button.callback("\u042F \u0432\u044B\u0431\u0440\u0430\u043B", 'time_stop')]
-                    ];
-                    return [2 /*return*/, ctx.editMessageText("\n                \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438", telegraf_1.Markup.inlineKeyboard(keybord))];
-                }
-                return [4 /*yield*/, ctx.editMessageText("\n    \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u043E\u0435 \u0432\u0440\u0435\u043C\u044F", {
-                        reply_markup: {
-                            inline_keyboard: [
-                                [
-                                    { text: "10:00", callback_data: "10" },
-                                    { text: "11:00", callback_data: "11" },
-                                    { text: "12:00", callback_data: "12" },
-                                ],
-                                [
-                                    { text: "13:00", callback_data: "13" },
-                                    { text: "14:00", callback_data: "14" },
-                                    { text: "15:00", callback_data: "15" },
-                                ],
-                                [
-                                    { text: "16:00", callback_data: "16" },
-                                    { text: "17:00", callback_data: "17" },
-                                    { text: "18:00", callback_data: "18" },
-                                ],
-                            ]
-                        },
-                        parse_mode: "Markdown"
-                    })];
+            case 0: return [4 /*yield*/, addKeyboardTime(ctx, ctx.match[0])];
             case 1:
                 _a.sent();
                 return [2 /*return*/, ctx.wizard.next()];
         }
     });
 }); });
-var superWizard = new telegraf_1.Scenes.WizardScene('super-wizard', ageHand, gradeHand, lessonHand, dayHand, dayHand, urlHand, timeHand, function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
-    var ind_time, t1, t2, t3, t4, t5, t6, t7, t8, t9, respone;
+timeHand.action(/day_stop/, function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
+    var respone;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                if (!(ctx.callbackQuery['data'] === 'time_stop')) {
-                    if (!ctx.scene.session.time) {
-                        ctx.scene.session.time = [];
-                    }
-                    if (ctx.scene.session.time.indexOf(ctx.callbackQuery['data']) != -1) {
-                        ind_time = ctx.scene.session.time.indexOf(ctx.callbackQuery['data']);
-                        ctx.scene.session.time.splice(ind_time, 1);
-                    }
-                    else {
-                        ctx.scene.session.time.push(ctx.callbackQuery['data']);
-                    }
-                    t1 = ctx.scene.session.time.indexOf('10') != -1 ? "✅" : "";
-                    t2 = ctx.scene.session.time.indexOf('11') != -1 ? "✅" : "";
-                    t3 = ctx.scene.session.time.indexOf('12') != -1 ? "✅" : "";
-                    t4 = ctx.scene.session.time.indexOf('13') != -1 ? "✅" : "";
-                    t5 = ctx.scene.session.time.indexOf('14') != -1 ? "✅" : "";
-                    t6 = ctx.scene.session.time.indexOf('15') != -1 ? "✅" : "";
-                    t7 = ctx.scene.session.time.indexOf('16') != -1 ? "✅" : "";
-                    t8 = ctx.scene.session.time.indexOf('17') != -1 ? "✅" : "";
-                    t9 = ctx.scene.session.time.indexOf('18') != -1 ? "✅" : "";
-                    return [2 /*return*/, ctx.editMessageText("\n                    \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u043E\u0435 \u0432\u0440\u0435\u043C\u044F", {
-                            reply_markup: {
-                                inline_keyboard: [
-                                    [
-                                        { text: t1 + "10:00", callback_data: "10" },
-                                        { text: t2 + "11:00", callback_data: "11" },
-                                        { text: t3 + "12:00", callback_data: "12" },
-                                    ],
-                                    [
-                                        { text: t4 + "13:00", callback_data: "13" },
-                                        { text: t5 + "14:00", callback_data: "14" },
-                                        { text: t6 + "15:00", callback_data: "15" },
-                                    ],
-                                    [
-                                        { text: t7 + "16:00", callback_data: "16" },
-                                        { text: t8 + "17:00", callback_data: "17" },
-                                        { text: t9 + "18:00", callback_data: "18" },
-                                    ],
-                                    [
-                                        { text: "Я выбрал", callback_data: "time_stop" },
-                                    ],
-                                ]
-                            },
-                            parse_mode: "Markdown"
-                        })];
-                }
-                return [4 /*yield*/, ctx.editMessageText("\u0417\u0430\u043F\u0438\u0441\u0430\u043B\u0438 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B.\n\u0416\u0434\u0438\u0442\u0435 :)")];
+            case 0: return [4 /*yield*/, ctx.editMessageText("\u0417\u0430\u043F\u0438\u0441\u0430\u043B\u0438 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B.\n\u0416\u0434\u0438\u0442\u0435 :)\n\u041D\u0430\u0436\u043C\u0438\u0442\u0435 /start \u0447\u0442\u043E\u0431\u044B \u0437\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u044C \u0435\u0449\u0435 \u043E\u0434\u043D\u0443 \u0437\u0430\u044F\u0432\u043A\u0443")];
             case 1:
                 _a.sent();
-                respone = "*\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C:* @".concat(ctx.scene.session.userName, ".\n*\u0412\u043E\u0437\u0440\u0430\u0441\u0442:* ").concat(ctx.scene.session.age, "\n*\u041A\u043B\u0430\u0441\u0441:* ").concat(ctx.scene.session.grade, "\n*\u0417\u0430\u043D\u044F\u0442\u0438\u0435:* ").concat(list_lessons[ctx.scene.session.lesson], "\n");
+                respone = "*\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C:* @".concat(ctx.scene.session.userName, ".\n*\u0412\u043E\u0437\u0440\u0430\u0441\u0442:* ").concat(ctx.scene.session.age, "\n*\u041A\u043B\u0430\u0441\u0441:* ").concat(ctx.scene.session.grade, "\n\n*\u0417\u0430\u043D\u044F\u0442\u0438\u0435:* ").concat(list_lessons[ctx.scene.session.lesson], "\n");
                 if (ctx.scene.session.lesson === "day_repeat") {
                     respone += "\n*\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u044F\u044F \u0442\u0435\u043C\u0430:* ".concat(ctx.scene.session.lastTopic, "\n");
                 }
                 if (ctx.scene.session.nameExam) {
-                    respone += "\n*\u041A\u0430\u043A\u043E\u0439 \u044D\u043A\u0437\u0430\u043C\u0435\u043D:* ".concat(ctx.scene.session.nameExam, "\n*\u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 \u0448\u043A\u043E\u043B\u0443/\u044D\u043A\u0437\u0430\u043C\u0435\u043D:* ").concat(ctx.scene.session.url, "\n");
+                    respone += "\n*\u041A\u0430\u043A\u043E\u0439 \u044D\u043A\u0437\u0430\u043C\u0435\u043D:* ".concat(ctx.scene.session.nameExam, "\n*\u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 \u0448\u043A\u043E\u043B\u0443/\u044D\u043A\u0437\u0430\u043C\u0435\u043D:* ").concat(ctx.scene.session.url);
                 }
-                respone += "\n*\u0414\u043D\u0438:* ".concat(ctx.scene.session.daysName.join(', '), "\n*\u0412\u0440\u0435\u043C\u044F:* ").concat(ctx.scene.session.time.join(':00, ')) + ":00";
+                respone += renderListDay(ctx.scene.session);
+                //ctx.replyWithMarkdown(respone);
                 return [4 /*yield*/, bot.telegram.sendMessage(ID_CHANNEL, respone, { parse_mode: "Markdown" })];
             case 2:
+                //ctx.replyWithMarkdown(respone);
                 _a.sent();
+                (0, sheet_1.apendDataGS)(fromCtxToArray(ctx));
                 return [2 /*return*/, ctx.scene.leave()];
         }
     });
 }); });
+var endHand = new telegraf_1.Composer();
+endHand.action(/(time_stop)|(day_stop)|(1[0-8])/, function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(ctx.match[0] === 'day_stop')) return [3 /*break*/, 1];
+                return [2 /*return*/, ctx.wizard.next()];
+            case 1:
+                if (!(ctx.match[0] === 'time_stop')) return [3 /*break*/, 3];
+                if (ctx.scene.session.time != undefined) {
+                    if (ctx.scene.session.time.length != 0) {
+                        ctx.scene.session[ctx.scene.session.currentDay] = ctx.scene.session.time;
+                    }
+                    else {
+                        ctx.scene.session[ctx.scene.session.currentDay] = undefined;
+                    }
+                }
+                else {
+                    ctx.scene.session[ctx.scene.session.currentDay] = undefined;
+                }
+                ctx.scene.session.time = [];
+                return [4 /*yield*/, addKeyboardDay(ctx, undefined)];
+            case 2:
+                _a.sent();
+                return [3 /*break*/, 5];
+            case 3: return [4 /*yield*/, addKeyboardTime(ctx, ctx.match[0])];
+            case 4:
+                _a.sent();
+                _a.label = 5;
+            case 5: return [2 /*return*/, ctx.wizard.back()];
+        }
+    });
+}); });
+var superWizard = new telegraf_1.Scenes.WizardScene('super-wizard', ageHand, gradeHand, lessonHand, dayHand, dayHand, urlHand, timeHand, endHand);
 var bot = new telegraf_1.Telegraf(TOKEN_BOT);
 var stage = new telegraf_1.Scenes.Stage([superWizard], {
     "default": 'super-wizard'
@@ -366,3 +298,124 @@ bot.launch();
 // Enable graceful stop
 process.once('SIGINT', function () { return bot.stop('SIGINT'); });
 process.once('SIGTERM', function () { return bot.stop('SIGTERM'); });
+function addKeyboardDay(ctx, data) {
+    var msg;
+    var t1 = checkDay(ctx.scene.session.time_m) ? "\u2705" : "";
+    var t2 = checkDay(ctx.scene.session.time_tu) ? "\u2705" : "";
+    var t3 = checkDay(ctx.scene.session.time_w) ? "\u2705" : "";
+    var t4 = checkDay(ctx.scene.session.time_th) ? "\u2705" : "";
+    var t5 = checkDay(ctx.scene.session.time_f) ? "\u2705" : "";
+    var t6 = checkDay(ctx.scene.session.time_sut) ? "\u2705" : "";
+    var t7 = checkDay(ctx.scene.session.time_sun) ? "\u2705" : "";
+    var keybord = [
+        [telegraf_1.Markup.button.callback(t1 + "\u041F\u043E\u043D\u0435\u0434\u0435\u043B\u044C\u043D\u0438\u043A", 'time_m')],
+        [telegraf_1.Markup.button.callback(t2 + "\u0412\u0442\u043E\u0440\u043D\u0438\u043A", 'time_tu')],
+        [telegraf_1.Markup.button.callback(t3 + "\u0421\u0440\u0435\u0434\u0430", 'time_w')],
+        [telegraf_1.Markup.button.callback(t4 + "\u0427\u0435\u0442\u0432\u0435\u0440\u0433", 'time_th')],
+        [telegraf_1.Markup.button.callback(t5 + "\u041F\u044F\u0442\u043D\u0438\u0446\u0430", 'time_f')],
+        [telegraf_1.Markup.button.callback(t6 + "\u0421\u0443\u0431\u0431\u043E\u0442\u0430", 'time_sut')],
+        [telegraf_1.Markup.button.callback(t7 + "\u0412\u043E\u0441\u043A\u0440\u0435\u0441\u0435\u043D\u044C\u0435", 'time_sun')],
+        [telegraf_1.Markup.button.callback("\u042F \u0432\u044B\u0431\u0440\u0430\u043B", 'day_stop')]
+    ];
+    if (!data) {
+        msg = ctx.editMessageText("\n        \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438 (\u043C\u043E\u0436\u043D\u043E \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E)", telegraf_1.Markup.inlineKeyboard(keybord));
+    }
+    else {
+        msg = ctx.reply("\n        \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438 (\u043C\u043E\u0436\u043D\u043E \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E)", telegraf_1.Markup.inlineKeyboard(keybord));
+    }
+    return msg;
+}
+function addKeyboardTime(ctx, data) {
+    if (!ctx.scene.session.time) {
+        ctx.scene.session.time = [];
+    }
+    if ((ctx.scene.session.time.length === 0) && (ctx.scene.session[ctx.scene.session.currentDay] != undefined)) {
+        ctx.scene.session.time = ctx.scene.session[ctx.scene.session.currentDay];
+    }
+    if (Number(data)) {
+        if (ctx.scene.session.time.indexOf(data) != -1) {
+            var ind_time = ctx.scene.session.time.indexOf(data);
+            ctx.scene.session.time.splice(ind_time, 1);
+        }
+        else {
+            ctx.scene.session.time.push(data);
+        }
+    }
+    var t1 = ctx.scene.session.time.indexOf('10') != -1 ? "✅" : "";
+    var t2 = ctx.scene.session.time.indexOf('11') != -1 ? "✅" : "";
+    var t3 = ctx.scene.session.time.indexOf('12') != -1 ? "✅" : "";
+    var t4 = ctx.scene.session.time.indexOf('13') != -1 ? "✅" : "";
+    var t5 = ctx.scene.session.time.indexOf('14') != -1 ? "✅" : "";
+    var t6 = ctx.scene.session.time.indexOf('15') != -1 ? "✅" : "";
+    var t7 = ctx.scene.session.time.indexOf('16') != -1 ? "✅" : "";
+    var t8 = ctx.scene.session.time.indexOf('17') != -1 ? "✅" : "";
+    var t9 = ctx.scene.session.time.indexOf('18') != -1 ? "✅" : "";
+    return ctx.editMessageText("\n*".concat(list_days[ctx.scene.session.currentDay], "*. \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u043E\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0432\u0440\u0435\u043C\u044F (\u043C\u043E\u0436\u043D\u043E \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E)."), {
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    { text: t1 + "10:00", callback_data: "10" },
+                    { text: t2 + "11:00", callback_data: "11" },
+                    { text: t3 + "12:00", callback_data: "12" },
+                ],
+                [
+                    { text: t4 + "13:00", callback_data: "13" },
+                    { text: t5 + "14:00", callback_data: "14" },
+                    { text: t6 + "15:00", callback_data: "15" },
+                ],
+                [
+                    { text: t7 + "16:00", callback_data: "16" },
+                    { text: t8 + "17:00", callback_data: "17" },
+                    { text: t9 + "18:00", callback_data: "18" },
+                ],
+                [
+                    { text: "Я выбрал", callback_data: "time_stop" },
+                ],
+            ]
+        },
+        parse_mode: "Markdown"
+    });
+}
+function checkDay(day) {
+    if (day === undefined) {
+        return 0;
+    }
+    if (day.length === 0) {
+        return 0;
+    }
+    return 1;
+}
+function renderDay(day, name) {
+    return checkDay(day) ? "*".concat(list_days[name], ":* ").concat(day.join(":00, "), ":00\n") : "";
+}
+function renderListDay(sessionList) {
+    var days_string = renderDay(sessionList.time_m, 'time_m') +
+        renderDay(sessionList.time_tu, 'time_t') +
+        renderDay(sessionList.time_w, 'time_w') +
+        renderDay(sessionList.time_th, 'time_th') +
+        renderDay(sessionList.time_f, 'time_f') +
+        renderDay(sessionList.time_sut, 'time_sut') +
+        renderDay(sessionList.time_sun, 'time_sun');
+    return days_string.length ? "\n*\u0412\u044B\u0431\u0440\u0430\u043B \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043D\u0438:*\n" + days_string : "\n*\u041D\u0435 \u0432\u044B\u0431\u0440\u0430\u043B \u043D\u0438 \u043E\u0434\u043D\u043E\u0433\u043E \u0434\u043D\u044F.*";
+}
+function fromCtxToArray(ctx) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+    return [
+        [
+            ctx.scene.session.userName,
+            ctx.scene.session.age,
+            ctx.scene.session.grade,
+            list_lessons[ctx.scene.session.lesson],
+            (_a = ctx.scene.session.lastTopic) !== null && _a !== void 0 ? _a : '-',
+            (_b = ctx.scene.session.nameExam) !== null && _b !== void 0 ? _b : '-',
+            (_c = ctx.scene.session.url) !== null && _c !== void 0 ? _c : '-',
+            (_f = (_e = (_d = ctx.scene.session.time_m) === null || _d === void 0 ? void 0 : _d.join(':00, ')) === null || _e === void 0 ? void 0 : _e.concat(':00')) !== null && _f !== void 0 ? _f : '-',
+            (_j = (_h = (_g = ctx.scene.session.time_tu) === null || _g === void 0 ? void 0 : _g.join(':00, ')) === null || _h === void 0 ? void 0 : _h.concat(':00')) !== null && _j !== void 0 ? _j : '-',
+            (_m = (_l = (_k = ctx.scene.session.time_w) === null || _k === void 0 ? void 0 : _k.join(':00, ')) === null || _l === void 0 ? void 0 : _l.concat(':00')) !== null && _m !== void 0 ? _m : '-',
+            (_q = (_p = (_o = ctx.scene.session.time_th) === null || _o === void 0 ? void 0 : _o.join(':00, ')) === null || _p === void 0 ? void 0 : _p.concat(':00')) !== null && _q !== void 0 ? _q : '-',
+            (_t = (_s = (_r = ctx.scene.session.time_f) === null || _r === void 0 ? void 0 : _r.join(':00, ')) === null || _s === void 0 ? void 0 : _s.concat(':00')) !== null && _t !== void 0 ? _t : '-',
+            (_w = (_v = (_u = ctx.scene.session.time_sut) === null || _u === void 0 ? void 0 : _u.join(':00, ')) === null || _v === void 0 ? void 0 : _v.concat(':00')) !== null && _w !== void 0 ? _w : '-',
+            (_z = (_y = (_x = ctx.scene.session.time_sun) === null || _x === void 0 ? void 0 : _x.join(':00, ')) === null || _y === void 0 ? void 0 : _y.concat(':00')) !== null && _z !== void 0 ? _z : '-',
+        ]
+    ];
+}
