@@ -2,7 +2,7 @@
 .env
 test.js
 test.ts
-writeGS.js
-main.ts
 searchlessons-b3e3cb2c3e04.json
 GOOGLE_CREDENTIALS.json
+.DS_Store
+google-credentials.json

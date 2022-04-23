@@ -1,10 +1,9 @@
 const fs = require('fs');
-const path = require('path');
 const { promisify } = require('util');
 const { google } = require('googleapis');
 const readFile = promisify( fs.readFile );
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const CREDENTIALS_PATH = 'GOOGLE_CREDENTIALS.json';
+const CREDENTIALS_PATH = 'google-credentials.json';
 
 /**
 * Создает клиента для аутентификации с помощью JWT

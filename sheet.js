@@ -9,29 +9,6 @@ const getApiClient = async () => {
     } );
  
     return apiClient;
- };
-
-const getValuesData = async ( apiClient, range ) => {
-    const { data } = await apiClient.get( {
-        spreadsheetId   : '19m-1i6tcjeHCyT-V4VzdMFnm6YWRhMaMcrkCVzIJAlM',
-        ranges          : range,
-        fields          : 'sheets',
-        includeGridData : true,
-    } );
- 
-    return data.sheets;
-};
-
-const updateValuesData = async ( apiClient, range, body ) => {
-    const { data } = await apiClient.values.update( {
-        spreadsheetId   : '19m-1i6tcjeHCyT-V4VzdMFnm6YWRhMaMcrkCVzIJAlM',
-        range           : range,
-        valueInputOption: 'RAW',
-        requestBody     : body,
-
-    } );
- 
-    return data.sheets;
 };
 
 const appendValuesData = async ( apiClient, range, body ) => {
@@ -47,7 +24,7 @@ const appendValuesData = async ( apiClient, range, body ) => {
 
 
  const apendDataGS = async ( values ) => {
-    const range = 'Лист1!A2:N100';
+    const range = 'Лист1!A2:Q1000';
     const apiClient = await getApiClient();
     const requestBody = {
         values,
