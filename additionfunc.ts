@@ -7,8 +7,8 @@ export function init(obj: any) {
     obj.grade = '';
     obj.lesson = '';
     obj.lastTopic = undefined;
-    obj.nameExam = undefined;
     obj.url = undefined;
+    obj.myself = undefined;
 
     obj.time = [];
 
@@ -21,20 +21,31 @@ export function init(obj: any) {
     obj.time_f = undefined
     obj.time_sut = undefined;
     obj.time_sun = undefined;
+    obj.time_any = undefined;
 }
 
 export function addKeyboardDay(ctx: any, data: boolean | undefined) {
 
     let msg: any;
+    let d1: string;
+    let d2: string;
+    let d3: string;
+    let d4: string;
+    let d5: string;
+    let d6: string;
+    let d7: string;
+    let d8: string;
 
+
+    d1 = appendTime(ctx.scene.session.time_m, 'Понедельник');
+    d2 = appendTime(ctx.scene.session.time_tu, 'Вторник');
+    d3 = appendTime(ctx.scene.session.time_w, 'Среда');
+    d4 = appendTime(ctx.scene.session.time_th, 'Четверг');
+    d5 = appendTime(ctx.scene.session.time_f, 'Пятница');
+    d6 = appendTime(ctx.scene.session.time_sut, 'Суббота');
+    d7 = appendTime(ctx.scene.session.time_sun, 'Воскресенье');
+    d8 = appendTime(ctx.scene.session.time_any, 'Любой день');
     
-    const d1 = appendTime(ctx.scene.session.time_m, 'Понедельник');
-    const d2 = appendTime(ctx.scene.session.time_tu, 'Вторник');
-    const d3 = appendTime(ctx.scene.session.time_w, 'Среда');
-    const d4 = appendTime(ctx.scene.session.time_th, 'Четверг');
-    const d5 = appendTime(ctx.scene.session.time_f, 'Пятница');
-    const d6 = appendTime(ctx.scene.session.time_sut, 'Суббота');
-    const d7 = appendTime(ctx.scene.session.time_sun, 'Воскресенье');
 
     let keybord = [
         [Markup.button.callback(d1, 'time_m')],
@@ -44,13 +55,14 @@ export function addKeyboardDay(ctx: any, data: boolean | undefined) {
         [Markup.button.callback(d5, 'time_f')],
         [Markup.button.callback(d6, 'time_sut')],
         [Markup.button.callback(d7, 'time_sun')],
+        [Markup.button.callback(d8, 'time_any')],
         [Markup.button.callback(`Я выбрал`, 'day_stop')]
     ];
 
     if (!data) {
         msg = ctx.editMessageText(`
-Выбрал занятие - *${list_lessons[ctx.scene.session.lesson]}*
-Выбери удобные для себя дни (можно несколько)`,
+Вы выбрали тип занятия - *${list_lessons[ctx.scene.session.lesson]}*
+Выберите все подходящие дни`,
                 {
                     parse_mode: "Markdown",
                     ...Markup.inlineKeyboard(keybord),
@@ -58,8 +70,8 @@ export function addKeyboardDay(ctx: any, data: boolean | undefined) {
             );
     } else {
         msg = ctx.replyWithMarkdown(`
-Выбрал занятие - *${list_lessons[ctx.scene.session.lesson]}*.
-Выбери удобные для себя дни (можно несколько)`,
+Вы выбрали тип занятия - *${list_lessons[ctx.scene.session.lesson]}*.
+Выберите все подходящие дни`,
                         Markup.inlineKeyboard(keybord),
             );
     }
@@ -81,8 +93,13 @@ export function addKeyboardTime(ctx: any, data: string | undefined) {
             const ind_time = ctx.scene.session.time.indexOf(data);
             ctx.scene.session.time.splice(ind_time,1);
         } else {
+            if (ctx.scene.session.time.indexOf('any') != -1) {
+                ctx.scene.session.time = [];
+            }
             ctx.scene.session.time.push(data);
         }
+    } else if (data === 'any') {
+        ctx.scene.session.time = ctx.scene.session.time.indexOf(data) != -1 ? [] : ['any'];
     }
     
     const t1 = ctx.scene.session.time.indexOf('10') != -1 ? "✅" : "";
@@ -94,8 +111,10 @@ export function addKeyboardTime(ctx: any, data: string | undefined) {
     const t7 = ctx.scene.session.time.indexOf('16') != -1 ? "✅" : "";
     const t8 = ctx.scene.session.time.indexOf('17') != -1 ? "✅" : "";
     const t9 = ctx.scene.session.time.indexOf('18') != -1 ? "✅" : "";
+    const anyslot = ctx.scene.session.time.indexOf('any') != -1 ? "✅" : "";
     return ctx.editMessageText(`
-*${list_days[ctx.scene.session.currentDay]}*. Выбери удобное для себя время (можно несколько).`,
+*${list_days[ctx.scene.session.currentDay]}*
+Выберите все подходящие варианты`,
             {
                 reply_markup: {
                 inline_keyboard: [
@@ -115,6 +134,9 @@ export function addKeyboardTime(ctx: any, data: string | undefined) {
                         { text: t9 + "18:00", callback_data:  "18"},
                     ],
                     [
+                        { text: anyslot + "Любое время", callback_data:  "any"},
+                    ],
+                    [
                         { text: "Я выбрал", callback_data:  "time_stop"},
                     ],
                 ]
@@ -129,7 +151,6 @@ export function checkDay(day: string[] | undefined) {
     if (day === undefined) {
         return 0;
     }
-
     if (day.length === 0) {
         return 0;
     }
@@ -137,7 +158,10 @@ export function checkDay(day: string[] | undefined) {
 }
 
 export function renderDay(day: string[] | undefined | undefined, name: string) {
-    let sday = day?.sort();
+    day?.sort();
+    if (checkAnyTime(day)) {
+        return `*${list_days[name]}:* Любое время\n`
+    }
     return checkDay(day) ? `*${list_days[name]}:* ${day?.join(":00, ")}:00\n` : ``;
 }
 
@@ -148,17 +172,32 @@ export function renderListDay(sessionList: any) {
     renderDay(sessionList.time_th,'time_th') +
     renderDay(sessionList.time_f,'time_f') +
     renderDay(sessionList.time_sut,'time_sut') +
-    renderDay(sessionList.time_sun,'time_sun');
+    renderDay(sessionList.time_sun,'time_sun') +
+    renderDay(sessionList.time_any, 'time_any');
 
-    return days_string.length ? `\n*Выбрал удобное время:*\n` + days_string : `\n*Не выбрал ни одного дня.*`;
+    return days_string.length ? `\n*Выбрали удобное время:*\n` + days_string : `\n*Не выбрал ни одного дня.*`;
 }
 
 export function appendTime(day: string[] | undefined, name: string) {
-    let sday = day?.sort();
+    day?.sort();
     let str = checkDay(day) ? `✅` : ``;
     str += name;
+
+    if (checkAnyTime(day)) {
+        return str + ' (Любое время)';
+    }
+            
     str += checkDay(day) ? ` (` + day?.join(":00, ")?.concat(":00)") : ``;
     return str;
+}
+
+function checkAnyTime(day: string[]) {
+    if (checkDay(day)) {
+        if (day.indexOf('any') != -1) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function fromCtxToArray (ctx: any) {
@@ -174,16 +213,17 @@ export function fromCtxToArray (ctx: any) {
             ctx.grade,
             list_lessons[ctx.lesson],
             ctx.lastTopic ?? '-',
-            ctx.nameExam ?? '-',
             ctx.url ?? '-',
-            ctx.time_m?.join(':00, ')?.concat(':00') ?? '-',
-            ctx.time_tu?.join(':00, ')?.concat(':00') ?? '-',
-            ctx.time_w?.join(':00, ')?.concat(':00')?? '-',
-            ctx.time_th?.join(':00, ')?.concat(':00') ?? '-',
-            ctx.time_f?.join(':00, ')?.concat(':00') ?? '-',
-            ctx.time_sut?.join(':00, ')?.concat(':00') ?? '-',
-            ctx.time_sun?.join(':00, ')?.concat(':00') ?? '-',
+            ctx.myself ?? '-',
+            checkAnyTime(ctx.time_m) ? 'Любое время' : ctx.time_m?.join(':00, ')?.concat(':00') ?? '-',
+            checkAnyTime(ctx.time_tu) ? 'Любое время' : ctx.time_tu?.join(':00, ')?.concat(':00') ?? '-',
+            checkAnyTime(ctx.time_w) ? 'Любое время' : ctx.time_w?.join(':00, ')?.concat(':00')?? '-',
+            checkAnyTime(ctx.time_th) ? 'Любое время' : ctx.time_th?.join(':00, ')?.concat(':00') ?? '-',
+            checkAnyTime(ctx.time_f) ? 'Любое время' : ctx.time_f?.join(':00, ')?.concat(':00') ?? '-',
+            checkAnyTime(ctx.time_sut) ? 'Любое время' : ctx.time_sut?.join(':00, ')?.concat(':00') ?? '-',
+            checkAnyTime(ctx.time_sun) ? 'Любое время' : ctx.time_sun?.join(':00, ')?.concat(':00') ?? '-',
+            checkAnyTime(ctx.time_any) ? 'Любое время' : ctx.time_any?.join(':00, ')?.concat(':00') ?? '-'
         ]
     ];
-
 }
+

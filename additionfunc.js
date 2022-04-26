@@ -19,8 +19,8 @@ function init(obj) {
     obj.grade = '';
     obj.lesson = '';
     obj.lastTopic = undefined;
-    obj.nameExam = undefined;
     obj.url = undefined;
+    obj.myself = undefined;
     obj.time = [];
     obj.currentDay = '';
     obj.time_m = undefined;
@@ -30,17 +30,27 @@ function init(obj) {
     obj.time_f = undefined;
     obj.time_sut = undefined;
     obj.time_sun = undefined;
+    obj.time_any = undefined;
 }
 exports.init = init;
 function addKeyboardDay(ctx, data) {
     var msg;
-    var d1 = appendTime(ctx.scene.session.time_m, 'Понедельник');
-    var d2 = appendTime(ctx.scene.session.time_tu, 'Вторник');
-    var d3 = appendTime(ctx.scene.session.time_w, 'Среда');
-    var d4 = appendTime(ctx.scene.session.time_th, 'Четверг');
-    var d5 = appendTime(ctx.scene.session.time_f, 'Пятница');
-    var d6 = appendTime(ctx.scene.session.time_sut, 'Суббота');
-    var d7 = appendTime(ctx.scene.session.time_sun, 'Воскресенье');
+    var d1;
+    var d2;
+    var d3;
+    var d4;
+    var d5;
+    var d6;
+    var d7;
+    var d8;
+    d1 = appendTime(ctx.scene.session.time_m, 'Понедельник');
+    d2 = appendTime(ctx.scene.session.time_tu, 'Вторник');
+    d3 = appendTime(ctx.scene.session.time_w, 'Среда');
+    d4 = appendTime(ctx.scene.session.time_th, 'Четверг');
+    d5 = appendTime(ctx.scene.session.time_f, 'Пятница');
+    d6 = appendTime(ctx.scene.session.time_sut, 'Суббота');
+    d7 = appendTime(ctx.scene.session.time_sun, 'Воскресенье');
+    d8 = appendTime(ctx.scene.session.time_any, 'Любой день');
     var keybord = [
         [telegraf_1.Markup.button.callback(d1, 'time_m')],
         [telegraf_1.Markup.button.callback(d2, 'time_tu')],
@@ -49,13 +59,14 @@ function addKeyboardDay(ctx, data) {
         [telegraf_1.Markup.button.callback(d5, 'time_f')],
         [telegraf_1.Markup.button.callback(d6, 'time_sut')],
         [telegraf_1.Markup.button.callback(d7, 'time_sun')],
+        [telegraf_1.Markup.button.callback(d8, 'time_any')],
         [telegraf_1.Markup.button.callback("\u042F \u0432\u044B\u0431\u0440\u0430\u043B", 'day_stop')]
     ];
     if (!data) {
-        msg = ctx.editMessageText("\n\u0412\u044B\u0431\u0440\u0430\u043B \u0437\u0430\u043D\u044F\u0442\u0438\u0435 - *".concat(additionConst_1.list_lessons[ctx.scene.session.lesson], "*\n\u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438 (\u043C\u043E\u0436\u043D\u043E \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E)"), __assign({ parse_mode: "Markdown" }, telegraf_1.Markup.inlineKeyboard(keybord)));
+        msg = ctx.editMessageText("\n\u0412\u044B \u0432\u044B\u0431\u0440\u0430\u043B\u0438 \u0442\u0438\u043F \u0437\u0430\u043D\u044F\u0442\u0438\u044F - *".concat(additionConst_1.list_lessons[ctx.scene.session.lesson], "*\n\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0441\u0435 \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u0434\u043D\u0438"), __assign({ parse_mode: "Markdown" }, telegraf_1.Markup.inlineKeyboard(keybord)));
     }
     else {
-        msg = ctx.replyWithMarkdown("\n\u0412\u044B\u0431\u0440\u0430\u043B \u0437\u0430\u043D\u044F\u0442\u0438\u0435 - *".concat(additionConst_1.list_lessons[ctx.scene.session.lesson], "*.\n\u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u044B\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0434\u043D\u0438 (\u043C\u043E\u0436\u043D\u043E \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E)"), telegraf_1.Markup.inlineKeyboard(keybord));
+        msg = ctx.replyWithMarkdown("\n\u0412\u044B \u0432\u044B\u0431\u0440\u0430\u043B\u0438 \u0442\u0438\u043F \u0437\u0430\u043D\u044F\u0442\u0438\u044F - *".concat(additionConst_1.list_lessons[ctx.scene.session.lesson], "*.\n\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0441\u0435 \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u0434\u043D\u0438"), telegraf_1.Markup.inlineKeyboard(keybord));
     }
     return msg;
 }
@@ -73,8 +84,14 @@ function addKeyboardTime(ctx, data) {
             ctx.scene.session.time.splice(ind_time, 1);
         }
         else {
+            if (ctx.scene.session.time.indexOf('any') != -1) {
+                ctx.scene.session.time = [];
+            }
             ctx.scene.session.time.push(data);
         }
+    }
+    else if (data === 'any') {
+        ctx.scene.session.time = ctx.scene.session.time.indexOf(data) != -1 ? [] : ['any'];
     }
     var t1 = ctx.scene.session.time.indexOf('10') != -1 ? "✅" : "";
     var t2 = ctx.scene.session.time.indexOf('11') != -1 ? "✅" : "";
@@ -85,7 +102,8 @@ function addKeyboardTime(ctx, data) {
     var t7 = ctx.scene.session.time.indexOf('16') != -1 ? "✅" : "";
     var t8 = ctx.scene.session.time.indexOf('17') != -1 ? "✅" : "";
     var t9 = ctx.scene.session.time.indexOf('18') != -1 ? "✅" : "";
-    return ctx.editMessageText("\n*".concat(additionConst_1.list_days[ctx.scene.session.currentDay], "*. \u0412\u044B\u0431\u0435\u0440\u0438 \u0443\u0434\u043E\u0431\u043D\u043E\u0435 \u0434\u043B\u044F \u0441\u0435\u0431\u044F \u0432\u0440\u0435\u043C\u044F (\u043C\u043E\u0436\u043D\u043E \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E)."), {
+    var anyslot = ctx.scene.session.time.indexOf('any') != -1 ? "✅" : "";
+    return ctx.editMessageText("\n*".concat(additionConst_1.list_days[ctx.scene.session.currentDay], "*\n\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0441\u0435 \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u044B"), {
         reply_markup: {
             inline_keyboard: [
                 [
@@ -102,6 +120,9 @@ function addKeyboardTime(ctx, data) {
                     { text: t7 + "16:00", callback_data: "16" },
                     { text: t8 + "17:00", callback_data: "17" },
                     { text: t9 + "18:00", callback_data: "18" },
+                ],
+                [
+                    { text: anyslot + "Любое время", callback_data: "any" },
                 ],
                 [
                     { text: "Я выбрал", callback_data: "time_stop" },
@@ -123,7 +144,10 @@ function checkDay(day) {
 }
 exports.checkDay = checkDay;
 function renderDay(day, name) {
-    var sday = day === null || day === void 0 ? void 0 : day.sort();
+    day === null || day === void 0 ? void 0 : day.sort();
+    if (checkAnyTime(day)) {
+        return "*".concat(additionConst_1.list_days[name], ":* \u041B\u044E\u0431\u043E\u0435 \u0432\u0440\u0435\u043C\u044F\n");
+    }
     return checkDay(day) ? "*".concat(additionConst_1.list_days[name], ":* ").concat(day === null || day === void 0 ? void 0 : day.join(":00, "), ":00\n") : "";
 }
 exports.renderDay = renderDay;
@@ -134,21 +158,33 @@ function renderListDay(sessionList) {
         renderDay(sessionList.time_th, 'time_th') +
         renderDay(sessionList.time_f, 'time_f') +
         renderDay(sessionList.time_sut, 'time_sut') +
-        renderDay(sessionList.time_sun, 'time_sun');
-    return days_string.length ? "\n*\u0412\u044B\u0431\u0440\u0430\u043B \u0443\u0434\u043E\u0431\u043D\u043E\u0435 \u0432\u0440\u0435\u043C\u044F:*\n" + days_string : "\n*\u041D\u0435 \u0432\u044B\u0431\u0440\u0430\u043B \u043D\u0438 \u043E\u0434\u043D\u043E\u0433\u043E \u0434\u043D\u044F.*";
+        renderDay(sessionList.time_sun, 'time_sun') +
+        renderDay(sessionList.time_any, 'time_any');
+    return days_string.length ? "\n*\u0412\u044B\u0431\u0440\u0430\u043B\u0438 \u0443\u0434\u043E\u0431\u043D\u043E\u0435 \u0432\u0440\u0435\u043C\u044F:*\n" + days_string : "\n*\u041D\u0435 \u0432\u044B\u0431\u0440\u0430\u043B \u043D\u0438 \u043E\u0434\u043D\u043E\u0433\u043E \u0434\u043D\u044F.*";
 }
 exports.renderListDay = renderListDay;
 function appendTime(day, name) {
     var _a;
-    var sday = day === null || day === void 0 ? void 0 : day.sort();
+    day === null || day === void 0 ? void 0 : day.sort();
     var str = checkDay(day) ? "\u2705" : "";
     str += name;
+    if (checkAnyTime(day)) {
+        return str + ' (Любое время)';
+    }
     str += checkDay(day) ? " (" + ((_a = day === null || day === void 0 ? void 0 : day.join(":00, ")) === null || _a === void 0 ? void 0 : _a.concat(":00)")) : "";
     return str;
 }
 exports.appendTime = appendTime;
+function checkAnyTime(day) {
+    if (checkDay(day)) {
+        if (day.indexOf('any') != -1) {
+            return true;
+        }
+    }
+    return false;
+}
 function fromCtxToArray(ctx) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2;
     var data = new Date();
     return [
         [
@@ -161,15 +197,16 @@ function fromCtxToArray(ctx) {
             ctx.grade,
             additionConst_1.list_lessons[ctx.lesson],
             (_a = ctx.lastTopic) !== null && _a !== void 0 ? _a : '-',
-            (_b = ctx.nameExam) !== null && _b !== void 0 ? _b : '-',
-            (_c = ctx.url) !== null && _c !== void 0 ? _c : '-',
-            (_f = (_e = (_d = ctx.time_m) === null || _d === void 0 ? void 0 : _d.join(':00, ')) === null || _e === void 0 ? void 0 : _e.concat(':00')) !== null && _f !== void 0 ? _f : '-',
-            (_j = (_h = (_g = ctx.time_tu) === null || _g === void 0 ? void 0 : _g.join(':00, ')) === null || _h === void 0 ? void 0 : _h.concat(':00')) !== null && _j !== void 0 ? _j : '-',
-            (_m = (_l = (_k = ctx.time_w) === null || _k === void 0 ? void 0 : _k.join(':00, ')) === null || _l === void 0 ? void 0 : _l.concat(':00')) !== null && _m !== void 0 ? _m : '-',
-            (_q = (_p = (_o = ctx.time_th) === null || _o === void 0 ? void 0 : _o.join(':00, ')) === null || _p === void 0 ? void 0 : _p.concat(':00')) !== null && _q !== void 0 ? _q : '-',
-            (_t = (_s = (_r = ctx.time_f) === null || _r === void 0 ? void 0 : _r.join(':00, ')) === null || _s === void 0 ? void 0 : _s.concat(':00')) !== null && _t !== void 0 ? _t : '-',
-            (_w = (_v = (_u = ctx.time_sut) === null || _u === void 0 ? void 0 : _u.join(':00, ')) === null || _v === void 0 ? void 0 : _v.concat(':00')) !== null && _w !== void 0 ? _w : '-',
-            (_z = (_y = (_x = ctx.time_sun) === null || _x === void 0 ? void 0 : _x.join(':00, ')) === null || _y === void 0 ? void 0 : _y.concat(':00')) !== null && _z !== void 0 ? _z : '-',
+            (_b = ctx.url) !== null && _b !== void 0 ? _b : '-',
+            (_c = ctx.myself) !== null && _c !== void 0 ? _c : '-',
+            checkAnyTime(ctx.time_m) ? 'Любое время' : (_f = (_e = (_d = ctx.time_m) === null || _d === void 0 ? void 0 : _d.join(':00, ')) === null || _e === void 0 ? void 0 : _e.concat(':00')) !== null && _f !== void 0 ? _f : '-',
+            checkAnyTime(ctx.time_tu) ? 'Любое время' : (_j = (_h = (_g = ctx.time_tu) === null || _g === void 0 ? void 0 : _g.join(':00, ')) === null || _h === void 0 ? void 0 : _h.concat(':00')) !== null && _j !== void 0 ? _j : '-',
+            checkAnyTime(ctx.time_w) ? 'Любое время' : (_m = (_l = (_k = ctx.time_w) === null || _k === void 0 ? void 0 : _k.join(':00, ')) === null || _l === void 0 ? void 0 : _l.concat(':00')) !== null && _m !== void 0 ? _m : '-',
+            checkAnyTime(ctx.time_th) ? 'Любое время' : (_q = (_p = (_o = ctx.time_th) === null || _o === void 0 ? void 0 : _o.join(':00, ')) === null || _p === void 0 ? void 0 : _p.concat(':00')) !== null && _q !== void 0 ? _q : '-',
+            checkAnyTime(ctx.time_f) ? 'Любое время' : (_t = (_s = (_r = ctx.time_f) === null || _r === void 0 ? void 0 : _r.join(':00, ')) === null || _s === void 0 ? void 0 : _s.concat(':00')) !== null && _t !== void 0 ? _t : '-',
+            checkAnyTime(ctx.time_sut) ? 'Любое время' : (_w = (_v = (_u = ctx.time_sut) === null || _u === void 0 ? void 0 : _u.join(':00, ')) === null || _v === void 0 ? void 0 : _v.concat(':00')) !== null && _w !== void 0 ? _w : '-',
+            checkAnyTime(ctx.time_sun) ? 'Любое время' : (_z = (_y = (_x = ctx.time_sun) === null || _x === void 0 ? void 0 : _x.join(':00, ')) === null || _y === void 0 ? void 0 : _y.concat(':00')) !== null && _z !== void 0 ? _z : '-',
+            checkAnyTime(ctx.time_any) ? 'Любое время' : (_2 = (_1 = (_0 = ctx.time_any) === null || _0 === void 0 ? void 0 : _0.join(':00, ')) === null || _1 === void 0 ? void 0 : _1.concat(':00')) !== null && _2 !== void 0 ? _2 : '-'
         ]
     ];
 }

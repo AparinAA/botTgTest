@@ -24,7 +24,7 @@ const appendValuesData = async ( apiClient, range, body ) => {
 
 
  const apendDataGS = async ( values ) => {
-    const range = 'Лист1!A2:Q1000';
+    const range = 'main!A:R';
     const apiClient = await getApiClient();
     const requestBody = {
         values,

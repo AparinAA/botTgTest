@@ -1,15 +1,18 @@
+import { Context, Scenes } from 'telegraf';
+
 interface Lessons {
     [index: string] : string; 
     day_math:  string; 
-    day_arith: string;
     day_repeat: string;
     day_trainexam: string;
+    day_myself: string;
+
 }
 export const list_lessons : Lessons = {
     'day_math': 'Занимательная математика',
-    'day_arith': 'Ментальная арифметика',
-    'day_repeat': 'Хочу повторить школьную программу',
+    'day_repeat': 'Школьная программа',
     'day_trainexam': 'Подготовка к экзаменам',
+    'day_myself' : 'Свой вариант',
 }
 
 interface Days {
@@ -21,6 +24,8 @@ interface Days {
     time_f: string;
     time_sut: string;
     time_sun: string;
+    time_any: string;
+
 }
 
 export const list_days : Days = {
@@ -31,4 +36,41 @@ export const list_days : Days = {
     'time_f': 'Пятница',
     'time_sut': 'Суббота',
     'time_sun': 'Воскресенье',
+    'time_any': 'Любой день',
+}
+
+export interface MyWizardSession extends Scenes.WizardSessionData {
+    [index: string]: any | string[] | string | undefined | number
+
+    userId: number
+    userName: string | undefined
+
+    age: string
+    grade: string
+    lesson: string
+    lastTopic: string | undefined
+    url: string | undefined
+    myself: string | undefined
+
+    time: string[]
+
+    currentDay : string
+    
+    time_m: any
+    time_tu: any
+    time_w: any
+    time_th: any
+    time_f: any
+    time_sut: any
+    time_sun: any
+    time_any: any
+
+}
+
+
+export interface MyContext extends Context {
+    myContextProp: string
+
+    scene: Scenes.SceneContextScene<MyContext, MyWizardSession>
+    wizard: Scenes.WizardContextWizard<MyContext>
 }
