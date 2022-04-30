@@ -2,6 +2,7 @@ import {list_lessons, list_days } from './additionConst';
 
 import { Markup } from 'telegraf';
 
+//'init' all data
 export function init(obj: any) {
     obj.age = '';
     obj.grade = '';
@@ -24,67 +25,53 @@ export function init(obj: any) {
     obj.time_any = undefined;
 }
 
+//function adds keyboard with days selection
 export function addKeyboardDay(ctx: any, data: boolean | undefined) {
-
-    let msg: any;
-    let d1: string;
-    let d2: string;
-    let d3: string;
-    let d4: string;
-    let d5: string;
-    let d6: string;
-    let d7: string;
-    let d8: string;
-
-
-    d1 = appendTime(ctx.scene.session.time_m, 'Понедельник');
-    d2 = appendTime(ctx.scene.session.time_tu, 'Вторник');
-    d3 = appendTime(ctx.scene.session.time_w, 'Среда');
-    d4 = appendTime(ctx.scene.session.time_th, 'Четверг');
-    d5 = appendTime(ctx.scene.session.time_f, 'Пятница');
-    d6 = appendTime(ctx.scene.session.time_sut, 'Суббота');
-    d7 = appendTime(ctx.scene.session.time_sun, 'Воскресенье');
-    d8 = appendTime(ctx.scene.session.time_any, 'Любой день');
-    
-
-    let keybord = [
-        [Markup.button.callback(d1, 'time_m')],
-        [Markup.button.callback(d2, 'time_tu')],
-        [Markup.button.callback(d3, 'time_w')],
-        [Markup.button.callback(d4, 'time_th')],
-        [Markup.button.callback(d5, 'time_f')],
-        [Markup.button.callback(d6, 'time_sut')],
-        [Markup.button.callback(d7, 'time_sun')],
-        [Markup.button.callback(d8, 'time_any')],
+    //init keyboard
+    let keyboard = [
+        [Markup.button.callback(appendTime(ctx.scene.session.time_m, 'Понедельник'), 'time_m')],
+        [Markup.button.callback(appendTime(ctx.scene.session.time_tu, 'Вторник'), 'time_tu')],
+        [Markup.button.callback(appendTime(ctx.scene.session.time_w, 'Среда'), 'time_w')],
+        [Markup.button.callback(appendTime(ctx.scene.session.time_th, 'Четверг'), 'time_th')],
+        [Markup.button.callback(appendTime(ctx.scene.session.time_f, 'Пятница'), 'time_f')],
+        [Markup.button.callback(appendTime(ctx.scene.session.time_sut, 'Суббота'), 'time_sut')],
+        [Markup.button.callback(appendTime(ctx.scene.session.time_sun, 'Воскресенье'), 'time_sun')],
+        [Markup.button.callback(appendTime(ctx.scene.session.time_any, 'Любой день'), 'time_any')],
         [Markup.button.callback(`Я выбрал`, 'day_stop')]
     ];
+    let msg: string;
 
     if (!data) {
+        //if handler from lessons selesction
         msg = ctx.editMessageText(`
 Вы выбрали тип занятия - *${list_lessons[ctx.scene.session.lesson]}*
 Выберите все подходящие дни`,
                 {
                     parse_mode: "Markdown",
-                    ...Markup.inlineKeyboard(keybord),
+                    ...Markup.inlineKeyboard(keyboard),
                 }
             );
     } else {
+        //if handler from enter text (day_trainexam, day_repeat, day_myself)
         msg = ctx.replyWithMarkdown(`
 Вы выбрали тип занятия - *${list_lessons[ctx.scene.session.lesson]}*.
 Выберите все подходящие дни`,
-                        Markup.inlineKeyboard(keybord),
+                        Markup.inlineKeyboard(keyboard),
             );
     }
     return msg;
 }
 
+//function adds keyboard with times selesction
 export function addKeyboardTime(ctx: any, data: string | undefined) {
 
     if (!ctx.scene.session.time) {
+        //check current array of time and clear him
         ctx.scene.session.time = [];
     }
 
     if ( (ctx.scene.session.time.length === 0) && (ctx.scene.session[ctx.scene.session.currentDay] != undefined) ) {
+        //check current days timeslot array and shown this time
         ctx.scene.session.time = ctx.scene.session[ctx.scene.session.currentDay];
     }
     
@@ -102,44 +89,35 @@ export function addKeyboardTime(ctx: any, data: string | undefined) {
         ctx.scene.session.time = ctx.scene.session.time.indexOf(data) != -1 ? [] : ['any'];
     }
     
-    const t1 = ctx.scene.session.time.indexOf('10') != -1 ? "✅" : "";
-    const t2 = ctx.scene.session.time.indexOf('11') != -1 ? "✅" : "";
-    const t3 = ctx.scene.session.time.indexOf('12') != -1 ? "✅" : "";
-    const t4 = ctx.scene.session.time.indexOf('13') != -1 ? "✅" : "";
-    const t5 = ctx.scene.session.time.indexOf('14') != -1 ? "✅" : "";
-    const t6 = ctx.scene.session.time.indexOf('15') != -1 ? "✅" : "";
-    const t7 = ctx.scene.session.time.indexOf('16') != -1 ? "✅" : "";
-    const t8 = ctx.scene.session.time.indexOf('17') != -1 ? "✅" : "";
-    const t9 = ctx.scene.session.time.indexOf('18') != -1 ? "✅" : "";
-    const anyslot = ctx.scene.session.time.indexOf('any') != -1 ? "✅" : "";
+
     return ctx.editMessageText(`
 *${list_days[ctx.scene.session.currentDay]}*
 Выберите все подходящие варианты`,
             {
                 reply_markup: {
-                inline_keyboard: [
-                    [
-                        { text: t1 + "10:00", callback_data:  "10"},
-                        { text: t2 + "11:00", callback_data:  "11"},
-                        { text: t3 + "12:00", callback_data:  "12"},
-                    ],
-                    [
-                        { text: t4 + "13:00", callback_data:  "13"},
-                        { text: t5 + "14:00", callback_data:  "14"},
-                        { text: t6 + "15:00", callback_data:  "15"},
-                    ],
-                    [
-                        { text: t7 + "16:00", callback_data:  "16"},
-                        { text: t8 + "17:00", callback_data:  "17"},
-                        { text: t9 + "18:00", callback_data:  "18"},
-                    ],
-                    [
-                        { text: anyslot + "Любое время", callback_data:  "any"},
-                    ],
-                    [
-                        { text: "Я выбрал", callback_data:  "time_stop"},
-                    ],
-                ]
+                    inline_keyboard: [
+                        [
+                            { text: ctx.scene.session.time.indexOf("10") != -1 ? "✅10:00" : "10:00", callback_data: "10"},
+                            { text: ctx.scene.session.time.indexOf("11") != -1 ? "✅11:00" : "11:00", callback_data: "11"},
+                            { text: ctx.scene.session.time.indexOf("12") != -1 ? "✅12:00" : "12:00", callback_data: "12"},
+                        ],
+                        [
+                            { text: ctx.scene.session.time.indexOf("13") != -1 ? "✅13:00" : "13:00", callback_data: "13"},
+                            { text: ctx.scene.session.time.indexOf("14") != -1 ? "✅14:00" : "14:00", callback_data: "14"},
+                            { text: ctx.scene.session.time.indexOf("15") != -1 ? "✅15:00" : "15:00", callback_data: "15"},
+                        ],
+                        [
+                            { text: ctx.scene.session.time.indexOf("16") != -1 ? "✅16:00" : "16:00", callback_data: "16"},
+                            { text: ctx.scene.session.time.indexOf("17") != -1 ? "✅17:00" : "17:00", callback_data: "17"},
+                            { text: ctx.scene.session.time.indexOf("18") != -1 ? "✅18:00" : "18:00", callback_data: "18"},
+                        ],
+                        [
+                            {text: ctx.scene.session.time.indexOf('any') != -1 ? "✅Любое время" : "Любое время", callback_data: "any"},
+                        ],
+                        [
+                            { text: "Я выбрал", callback_data:  "time_stop"},
+                        ],
+                    ]
                 },
                 parse_mode: "Markdown"
             },
@@ -204,10 +182,10 @@ export function fromCtxToArray (ctx: any) {
     let data = new Date();
     return [
         [
-            data.toISOString().slice(8,10) + "."
-            + data.toISOString().slice(5,7) + " ",
-            data.toTimeString().slice(0,5),
-            data.toTimeString().split(' ')[1],
+            data?.toISOString()?.slice(8,10) + "."
+            + data?.toISOString()?.slice(5,7) + " ",
+            data?.toTimeString()?.slice(0,5),
+            data?.toTimeString()?.split(' ')[1],
             ctx.userName,
             ctx.age,
             ctx.grade,
@@ -227,3 +205,42 @@ export function fromCtxToArray (ctx: any) {
     ];
 }
 
+//delete excess message
+export async function deleteMsg(ctx: any, text: string) {
+    await ctx.deleteMessage();
+    ctx.reply(text).then(
+        ({ message_id }) => {
+            setTimeout(() => ctx.deleteMessage(message_id),3000)
+        }
+    )
+    return;
+}
+
+//Update timeslot of days and simulation multicheck for days
+export function updateTimeSlot( session: any, ) {
+    if (session.time?.length != 0) {
+        //append if list of time is not equal to NULL
+        if (session.currentDay === 'time_any') {
+            //reset all time of days IF will selected 'any day'
+            session.time_m = undefined;
+            session.time_tu = undefined;
+            session.time_w = undefined;
+            session.time_th = undefined;
+            session.time_f = undefined;
+            session.time_sut = undefined;
+            session.time_sun = undefined;
+        } else {
+            //reset time of 'any day' IF will selected any 
+            session.time_any = undefined;
+        }
+        //append time of list to current day
+        session[session.currentDay] = session.time;
+    } else {
+        //reset buffer time of list
+        session[session.currentDay] = undefined;
+    }
+    //reset buffer time of list
+    session.time = [];
+
+    return;
+}

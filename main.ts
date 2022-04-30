@@ -16,8 +16,10 @@ if (!TOKEN_BOT) {
 }
 
 
+//Handler for selected time and simulation multicheck
 timeHand.action(/day_stop/, async (ctx) => {
 
+    //if user choice day_stop and finish poll
     await ctx.editMessageText(`Мы записали ваши пожелания:
 
 *Занятие:* ${list_lessons[ctx.scene.session.lesson]}
@@ -51,10 +53,13 @@ ${renderListDay(ctx.scene.session)}
 
     respone += renderListDay(ctx.scene.session);
 
+    //ctx.replyWithMarkdown(respone);
+
+    //push notification in channel
     await bot.telegram.sendMessage(ID_CHANNEL, respone, {parse_mode: "Markdown"});
     
+    //append new row with result of poll in Google Sheets
     apendDataGS(fromCtxToArray(ctx.scene.session));
-    
     return ctx.scene.leave();
 });
 
@@ -88,13 +93,14 @@ try {
 
     bot.start( ctx => ctx.scene.enter('super-wizard'));
     bot.launch()
+    // Enable graceful stop
+    process.once('SIGINT', () => bot.stop('SIGINT'));
+    process.once('SIGTERM', () => bot.stop('SIGTERM'));
 } 
 catch (e) {
     const error = "Throw error in bot. Error message: " + e.message;
     bot.telegram.sendMessage(ID_CHAT_NOTI,error);
-}
-finally {
     // Enable graceful stop
-    process.once('SIGINT', () => bot.stop('SIGINT'))
-    process.once('SIGTERM', () => bot.stop('SIGTERM'))
+    process.once('SIGINT', () => bot.stop('SIGINT'));
+    process.once('SIGTERM', () => bot.stop('SIGTERM'));
 }

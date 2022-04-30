@@ -1,6 +1,6 @@
 import { Composer, Markup } from 'telegraf';
 import {MyContext,list_lessons} from './additionConst';
-import {addKeyboardDay, addKeyboardTime} from './additionfunc';
+import {addKeyboardDay, addKeyboardTime, deleteMsg, updateTimeSlot} from './additionfunc';
 
 
 //export handlers
@@ -12,27 +12,36 @@ export const timeHand = new Composer<MyContext>();
 export const endHand = new Composer<MyContext>();
 
 
+//handler for ask 'How old r u'?
 gradeHand.on('text', async (ctx) => {
     
     if (Number(ctx.message.text)) {
+        //Checking if the text is integer
+
+        //entry age
         ctx.scene.session.age = ctx.message.text;
         await ctx.reply('В каком Вы классе?');
         return ctx.wizard.next();
     } else {
+        //throw error and repeat 
         return ctx.reply(`Что-то пошло не так 🤷‍♂️. Давайте попробуем еще раз
 
 Сколько Вам лет? (Ребёнку)`);
     }
 })
 
+//handler for ask 'what grade r u?'
 lessonHand.on('text', async (ctx) => {
 
     if (!Number(ctx.message.text)) {
+        //Checking if the text is integer and throw error and repeat enter
         return ctx.reply(`Что-то пошло не так 🤷‍♂️. Давайте попробуем еще раз
 
 В каком Вы классе?`);
     }
+    //entry grade
     ctx.scene.session.grade = ctx.message.text;
+    //reply message description of lessons with keyboard select
     await ctx.replyWithMarkdown(`
     На какое занятие пойдете?
     
@@ -101,99 +110,74 @@ dayHand.action(/day_myself/, async (ctx) => {
 dayHand.action(/day_math/, async (ctx) => {
     ctx.scene.session.lesson = ctx.match[0];
 
-    await addKeyboardDay(ctx,undefined);
+    addKeyboardDay(ctx,undefined);
 
+    //If choice option day_math then jump to next next handler
     return ctx.wizard.selectStep(ctx.wizard.cursor + 2);
 });
 
+
+//handler for text day_repeate, myself, trainexam
 urlHand.on('text', async (ctx) => {
     if (ctx.scene.session.lesson === 'day_repeat') {
+        //Last topic what r u remember
         ctx.scene.session.lastTopic = ctx.message.text;
-        await addKeyboardDay(ctx,true);
-        return ctx.wizard.next();
     } else if (ctx.scene.session.lesson === 'day_myself') {
+        //Own topic for lesson
         ctx.scene.session.myself = ctx.message.text;
-        await addKeyboardDay(ctx,true);
-        return ctx.wizard.next();
     } else if (ctx.scene.session.lesson === 'day_trainexam') {
+        //Url school or exam example
         ctx.scene.session.url = ctx.message.text;
-        await addKeyboardDay(ctx,true);
-        return ctx.wizard.next();
-    }
-    
-
-    if (!ctx.scene.session.lesson) {
-        await ctx.deleteMessage();
-        ctx.reply('Выберите занятие сверху!').then(
-            ({ message_id }) => {
-                setTimeout(() => ctx.deleteMessage(message_id),3000)
-            }
-        )
-        return;
     }
 
+    //wish list of days
+    addKeyboardDay(ctx,true);
+    return ctx.wizard.next();
 });
-
 
 
 timeHand.action(/time_.*/, async (ctx) => {
     if (ctx.match[0] === "time_stop") {
-        if (ctx.scene.session.time?.length != 0) {
-            if (ctx.scene.session.currentDay === 'time_any') {
-                ctx.scene.session.time_m = undefined;
-                ctx.scene.session.time_tu = undefined;
-                ctx.scene.session.time_w = undefined;
-                ctx.scene.session.time_th = undefined;
-                ctx.scene.session.time_f = undefined;
-                ctx.scene.session.time_sut = undefined;
-                ctx.scene.session.time_sun = undefined;
-            } else {
-                ctx.scene.session.time_any = undefined;
-            }
-            ctx.scene.session[ctx.scene.session.currentDay] = ctx.scene.session.time;
-        } else {
-            ctx.scene.session[ctx.scene.session.currentDay] = undefined;
-        }
-        ctx.scene.session.time = [];
-        return await addKeyboardDay(ctx,undefined);
+        //append list of time to slot day if select timeslot is over
+        
+        //Update timeslot of days
+        updateTimeSlot(ctx.scene.session);
+
+        //back to days choice
+        return addKeyboardDay(ctx,undefined);
     }
+
+    //remember the day you chose
     ctx.scene.session.currentDay = ctx.match[0];
+
+    //return to select times
     addKeyboardTime(ctx,ctx.match[0]);
     return ctx.wizard.next();
      
 });
 
 
+//Handler for selected time and simulation multicheck
 timeHand.action(/1[0-8]|(any)/, async (ctx) => {
+    //return to select times
     await addKeyboardTime(ctx, ctx.match[0]);
     return ctx.wizard.next();
 });
 
-
+//Handler for selected time and simulation multicheck
 endHand.action(/(1[0-8])|(any)/, async (ctx) => {
+    //return to select times
     await addKeyboardTime(ctx,ctx.match[0]);
     return ctx.wizard.back();
 });
 
 endHand.action(/time_stop/, async (ctx) => {
-    if (ctx.scene.session.time?.length != 0) {
-        if (ctx.scene.session.currentDay === 'time_any') {
-            ctx.scene.session.time_m = undefined;
-            ctx.scene.session.time_tu = undefined;
-            ctx.scene.session.time_w = undefined;
-            ctx.scene.session.time_th = undefined;
-            ctx.scene.session.time_f = undefined;
-            ctx.scene.session.time_sut = undefined;
-            ctx.scene.session.time_sun = undefined;
-        } else {
-            ctx.scene.session.time_any = undefined;
-        }
-        ctx.scene.session[ctx.scene.session.currentDay] = ctx.scene.session.time;
-    } else {
-        ctx.scene.session[ctx.scene.session.currentDay] = undefined;
-    }
+    //append list of time to slot day if select timeslot is over
 
-    ctx.scene.session.time = [];
-    await addKeyboardDay(ctx,undefined);
+    //Update timeslot of days
+    updateTimeSlot(ctx.scene.session);
+    
+    //return to select days
+    addKeyboardDay(ctx,undefined);
     return ctx.wizard.back();
 }); 
