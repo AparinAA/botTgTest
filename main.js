@@ -52,15 +52,16 @@ if (!TOKEN_BOT) {
 //Handler for selected time and simulation multicheck
 handler_1.timeHand.action(/day_stop/, function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
     var respone;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0: 
             //if user choice day_stop and finish poll
             return [4 /*yield*/, ctx.editMessageText("\u041C\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043B\u0438 \u0432\u0430\u0448\u0438 \u043F\u043E\u0436\u0435\u043B\u0430\u043D\u0438\u044F:\n\n*\u0417\u0430\u043D\u044F\u0442\u0438\u0435:* ".concat(additionConst_1.list_lessons[ctx.scene.session.lesson], "\n").concat((0, additionfunc_1.renderListDay)(ctx.scene.session), "\n\n\u041D\u0430\u0436\u043C\u0438\u0442\u0435 /start \u0447\u0442\u043E\u0431\u044B \u0437\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u044C \u0435\u0449\u0435 \u043E\u0434\u043D\u0443 \u0437\u0430\u044F\u0432\u043A\u0443"), { parse_mode: "Markdown" })];
             case 1:
                 //if user choice day_stop and finish poll
-                _a.sent();
-                respone = "*\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C:* @".concat(ctx.scene.session.userName, ".\n*\u0412\u043E\u0437\u0440\u0430\u0441\u0442:* ").concat(ctx.scene.session.age, "\n*\u041A\u043B\u0430\u0441\u0441:* ").concat(ctx.scene.session.grade, "\n\n*\u0417\u0430\u043D\u044F\u0442\u0438\u0435:* ").concat(additionConst_1.list_lessons[ctx.scene.session.lesson]);
+                _b.sent();
+                respone = "*\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C:* @".concat((_a = ctx.scene.session.userName) !== null && _a !== void 0 ? _a : '', ".\n*\u0412\u043E\u0437\u0440\u0430\u0441\u0442:* ").concat(ctx.scene.session.age, "\n*\u041A\u043B\u0430\u0441\u0441:* ").concat(ctx.scene.session.grade, "\n\n*\u0417\u0430\u043D\u044F\u0442\u0438\u0435:* ").concat(additionConst_1.list_lessons[ctx.scene.session.lesson]);
                 if (ctx.scene.session.lesson === "day_repeat") {
                     respone += "\n*\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u044F\u044F \u0442\u0435\u043C\u0430:* ".concat(ctx.scene.session.lastTopic, "\n");
                 }
@@ -77,7 +78,7 @@ handler_1.timeHand.action(/day_stop/, function (ctx) { return __awaiter(void 0, 
             case 2:
                 //ctx.replyWithMarkdown(respone);
                 //push notification in channel
-                _a.sent();
+                _b.sent();
                 //append new row with result of poll in Google Sheets
                 (0, sheet_1.apendDataGS)((0, additionfunc_1.fromCtxToArray)(ctx.scene.session));
                 return [2 /*return*/, ctx.scene.leave()];

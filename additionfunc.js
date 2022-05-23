@@ -210,6 +210,7 @@ function fromCtxToArray(ctx) {
                 + ((_b = data === null || data === void 0 ? void 0 : data.toISOString()) === null || _b === void 0 ? void 0 : _b.slice(5, 7)) + " ",
             (_c = data === null || data === void 0 ? void 0 : data.toTimeString()) === null || _c === void 0 ? void 0 : _c.slice(0, 5),
             (_d = data === null || data === void 0 ? void 0 : data.toTimeString()) === null || _d === void 0 ? void 0 : _d.split(' ')[1],
+            ctx.userId,
             ctx.userName,
             ctx.age,
             ctx.grade,

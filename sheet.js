@@ -24,7 +24,7 @@ const appendValuesData = async ( apiClient, range, body ) => {
 
 
  const apendDataGS = async ( values ) => {
-    const range = 'main!A:R';
+    const range = 'main!A:S';
     const apiClient = await getApiClient();
     const requestBody = {
         values,

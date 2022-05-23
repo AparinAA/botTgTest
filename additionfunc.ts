@@ -186,6 +186,7 @@ export function fromCtxToArray (ctx: any) {
             + data?.toISOString()?.slice(5,7) + " ",
             data?.toTimeString()?.slice(0,5),
             data?.toTimeString()?.split(' ')[1],
+            ctx.userId,
             ctx.userName,
             ctx.age,
             ctx.grade,

@@ -27,7 +27,7 @@ ${renderListDay(ctx.scene.session)}
 
 Нажмите /start чтобы заполнить еще одну заявку`, {parse_mode: "Markdown"});
 
-    let respone = `*Пользователь:* @${ctx.scene.session.userName}.
+    let respone = `*Пользователь:* @${ctx.scene.session.userName ?? ''}.
 *Возраст:* ${ctx.scene.session.age}
 *Класс:* ${ctx.scene.session.grade}
 
@@ -70,7 +70,7 @@ try {
         async (ctx) => {
             ctx.scene.session.userId = ctx.from.id;
             ctx.scene.session.userName = ctx.from.username;
-        
+            
             init(ctx.scene.session);
             await ctx.replyWithMarkdown(`Привет!
     
